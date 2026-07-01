@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Decision Matrix">
+<meta name="theme-color" content="#0f1726">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Decision Matrix</title>
+<style>
+:root {
+  --navy: #0f1726;
+  --blue: #3b82f6;
+  --blue-light: #eff6ff;
+  --blue-border: #bfdbfe;
+  --green-bg: #dcfce7;
+  --green-text: #16a34a;
+  --amber-bg: #fffbeb;
+  --amber-text: #b45309;
+  --gray-bg: #fafafa;
+  --border: #e2e2e2;
+  --border-light: #ebebeb;
+  --text: #1a1a1a;
+  --muted: #888;
+  --surface: #f7f7f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Header ── */
+.app-header {
+  background: var(--navy);
+  color: #fff;
+  padding: 56px 20px 20px;
+  padding-top: calc(56px + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.app-logo {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: #1e2d4a;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.app-logo svg { width: 26px; height: 26px; }
+.app-title { font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+.app-sub { font-size: 12px; color: #93c5fd; margin-top: 2px; }
+
+/* ── Scrollable body ── */
+.app-body { padding: 20px 16px; max-width: 960px; margin: 0 auto; }
+
+/* ── Cards ── */
+.card { background: #fff; border-radius: 14px; border: 1px solid var(--border); padding: 18px; margin-bottom: 16px; }
+.card-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+/* ── Options ── */
+.options-area { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.opt-pill { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
+.opt-pill input { border: none; outline: none; padding: 8px 10px; font-size: 15px; width: 120px; background: transparent; color: var(--text); }
+.opt-pill input::placeholder { color: #ccc; }
+.opt-pill .rx { background: none; border: none; border-left: 1px solid var(--border-light); padding: 8px 10px; cursor: pointer; color: #ccc; font-size: 16px; line-height: 1; }
+.opt-pill .rx:active { color: #e53e3e; background: #fff5f5; }
+.add-opt-pill { display: flex; align-items: center; border: 1.5px dashed #d0d0d0; border-radius: 10px; overflow: hidden; background: #fff; }
+.add-opt-pill button { background: none; border: none; padding: 8px 14px; font-size: 14px; color: #aaa; cursor: pointer; }
+
+/* ── Legend ── */
+.legend { display: flex; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; border: 1px solid var(--border); }
+table { border-collapse: collapse; width: 100%; min-width: 420px; }
+thead th { background: #f5f5f5; font-size: 11px; font-weight: 600; color: #666; padding: 9px 10px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border-light); text-align: center; white-space: nowrap; }
+thead th:last-child { border-right: none; }
+thead th.lc { text-align: left; min-width: 130px; }
+thead th.ic { width: 72px; }
+thead th.wc { width: 72px; background: #eef4ff; color: var(--blue); }
+thead th.ac { width: 32px; background: transparent; border: none; }
+
+tbody tr { border-bottom: 1px solid var(--border-light); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 0; vertical-align: middle; border-right: 1px solid var(--border-light); }
+tbody td:last-child { border-right: none; }
+tbody td input { width: 100%; border: none; outline: none; padding: 10px; font-size: 15px; background: transparent; color: var(--text); }
+tbody td input::placeholder { color: #d0d0d0; }
+tbody td input:focus { background: #fafbff; }
+td.ic input { text-align: center; font-weight: 600; }
+td.wc { background: #f5f8ff; text-align: center; font-size: 13px; color: var(--blue); font-weight: 600; padding: 10px; }
+td.sc input { text-align: center; }
+td.ac { border: none; text-align: center; padding: 0 4px; }
+td.ac button { background: none; border: none; color: #ccc; font-size: 18px; padding: 8px 4px; cursor: pointer; line-height: 1; }
+td.ac button:active { color: #e53e3e; }
+
+td.imp-low  { background: var(--gray-bg); }
+td.imp-med  { background: var(--amber-bg); }
+td.imp-high { background: #f0fdf4; }
+td.imp-low  input { color: #888; }
+td.imp-med  input { color: var(--amber-text); }
+td.imp-high input { color: var(--green-text); }
+
+/* add criterion row */
+tr.add-crit-row td { border: none; padding: 0; }
+.add-crit-inner { padding: 10px 12px; }
+.add-crit-inner button { background: none; border: 1.5px dashed #d0d0d0; border-radius: 8px; padding: 7px 14px; font-size: 13px; color: #aaa; cursor: pointer; }
+.add-crit-inner button:active { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+/* tfoot */
+tfoot td { background: #f5f5f5; border-top: 1px solid var(--border); padding: 10px; font-size: 13px; font-weight: 600; text-align: center; border-right: 1px solid var(--border-light); }
+tfoot td:last-child { border-right: none; }
+tfoot td.lc { text-align: left; color: #555; }
+tfoot td.wc { background: #eef4ff; color: var(--blue); }
+tfoot td.winner { background: var(--green-bg); color: var(--green-text); }
+tfoot td.ac { border: none; background: transparent; }
+
+/* insight */
+.insight { background: var(--blue-light); border: 1px solid var(--blue-border); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1d4ed8; margin-top: 12px; }
+
+/* bottom actions */
+.actions { display: flex; gap: 10px; margin-top: 4px; }
+.dl-btn { flex: 1; padding: 14px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.dl-btn:active { background: #1e2d4a; }
+.reset-btn { padding: 14px 18px; background: none; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.reset-btn:active { background: var(--surface); }
+
+/* install hint */
+.install-hint { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #92400e; margin-bottom: 16px; line-height: 1.5; display: none; }
+.install-hint strong { display: block; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-logo">
+    <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="10" height="10" rx="2.5" fill="white" fill-opacity="0.15"/>
+      <rect x="15" y="1" width="10" height="10" rx="2.5" fill="#3b82f6"/>
+      <polyline points="17.5,6 19.5,8.5 23,4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <rect x="1" y="15" width="10" height="10" rx="2.5" fill="white" fill-opacity="0.15"/>
+      <rect x="15" y="15" width="10" height="10" rx="2.5" fill="white" fill-opacity="0.15"/>
+    </svg>
+  </div>
+  <div>
+    <div class="app-title">Decision Matrix</div>
+    <div class="app-sub">Weighted scoring · auto weights</div>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <div class="install-hint" id="install-hint">
+    <strong>&#128247; Add to your Home Screen</strong>
+    Tap the Share button in Safari, then "Add to Home Screen" to use this as an app.
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-title">Step 1 — Your options</div>
+    <div class="options-area" id="options-area"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <div class="card-title">Step 2 — Criteria, importance &amp; scores</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#d1d5db"></div>Low (1–3)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Medium (4–7)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>High (8–10)</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+      </table>
+    </div>
+    <div id="insight" style="display:none" class="insight"></div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="reset-btn" onclick="resetAll()">&#8635; Reset</button>
+    <button class="dl-btn" onclick="exportCSV()">&#8595; Download CSV</button>
+  </div>
+
+</div>
+
+<script>
+var options  = ['Option A', 'Option B'];
+var criteria = [
+  { name: 'Criterion 1', importance: '', scores: ['',''] },
+  { name: 'Criterion 2', importance: '', scores: ['',''] }
+];
+
+// show install hint on iOS Safari
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone) {
+  document.getElementById('install-hint').style.display = 'block';
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+function totalImp() { return criteria.reduce(function(s,c){ return s+(parseFloat(c.importance)||0); },0); }
+function getWeights() {
+  var t=totalImp(); if(!t) return criteria.map(function(){return 0;});
+  return criteria.map(function(c){ return (parseFloat(c.importance)||0)/t; });
+}
+function calcTotals() {
+  var w=getWeights();
+  return options.map(function(_,oi){ return criteria.reduce(function(sum,c,ci){ return sum+(parseFloat(c.scores[oi])||0)*w[ci]; },0); });
+}
+function impClass(v) {
+  var n=parseFloat(v); if(!n) return '';
+  return n<=3?'imp-low':n<=7?'imp-med':'imp-high';
+}
+
+function buildAll() { buildOptions(); buildHead(); buildBody(); buildFoot(); buildInsight(); }
+
+function buildOptions() {
+  var area=document.getElementById('options-area');
+  area.innerHTML='';
+  options.forEach(function(o,i){
+    var pill=document.createElement('div'); pill.className='opt-pill';
+    var inp=document.createElement('input');
+    inp.type='text'; inp.value=o; inp.placeholder='Option name';
+    inp.addEventListener('input',function(){ options[i]=this.value; buildHead(); buildFoot(); buildInsight(); });
+    pill.appendChild(inp);
+    if(options.length>1){
+      var rx=document.createElement('button'); rx.className='rx'; rx.innerHTML='&#10005;';
+      rx.addEventListener('click',function(){ removeOption(i); }); pill.appendChild(rx);
+    }
+    area.appendChild(pill);
+  });
+  var addPill=document.createElement('div'); addPill.className='add-opt-pill';
+  var addBtn=document.createElement('button'); addBtn.textContent='+ Add option';
+  addBtn.addEventListener('click',addOption); addPill.appendChild(addBtn);
+  area.appendChild(addPill);
+}
+
+function buildHead() {
+  var html='<tr><th class="lc">Criterion</th><th class="ic">Importance<br><span style="font-weight:400;font-size:10px;color:#aaa">1–10</span></th><th class="wc">Weight<br><span style="font-weight:400;font-size:10px;color:#93c5fd">auto</span></th>';
+  options.forEach(function(o){ html+='<th>'+esc(o||'—')+'<br><span style="font-weight:400;font-size:10px;color:#aaa">0–5</span></th>'; });
+  html+='<th class="ac"></th></tr>';
+  document.getElementById('thead').innerHTML=html;
+}
+
+function buildBody() {
+  var tbody=document.getElementById('tbody');
+  var weights=getWeights();
+  tbody.innerHTML='';
+  criteria.forEach(function(c,ci){
+    var tr=document.createElement('tr');
+    // name
+    var tdN=document.createElement('td');
+    var inpN=document.createElement('input');
+    inpN.type='text'; inpN.value=c.name; inpN.placeholder='Enter criterion…';
+    inpN.addEventListener('input',function(){ criteria[ci].name=this.value; });
+    tdN.appendChild(inpN); tr.appendChild(tdN);
+    // importance
+    var tdI=document.createElement('td');
+    tdI.className='ic '+(impClass(c.importance)||''); tdI.id='ic-'+ci;
+    var inpI=document.createElement('input');
+    inpI.type='number'; inpI.min=1; inpI.max=10; inpI.inputMode='numeric';
+    inpI.value=c.importance; inpI.placeholder='1–10';
+    inpI.addEventListener('input',function(){
+      var v=parseFloat(this.value);
+      if(v>10){v=10;this.value=10;} if(v<1&&this.value!==''){v=1;this.value=1;}
+      criteria[ci].importance=isNaN(v)?'':v;
+      document.getElementById('ic-'+ci).className='ic '+(impClass(criteria[ci].importance)||'');
+      refreshWeightCells(); buildFoot(); buildInsight();
+    });
+    tdI.appendChild(inpI); tr.appendChild(tdI);
+    // weight
+    var tdW=document.createElement('td'); tdW.className='wc'; tdW.id='wc-'+ci;
+    tdW.textContent=weights[ci]>0?(weights[ci]*100).toFixed(1)+'%':'—';
+    tr.appendChild(tdW);
+    // scores
+    options.forEach(function(_,oi){
+      var tdS=document.createElement('td'); tdS.className='sc';
+      var inpS=document.createElement('input');
+      inpS.type='number'; inpS.min=0; inpS.max=5; inpS.inputMode='numeric';
+      inpS.value=c.scores[oi]!==undefined?c.scores[oi]:''; inpS.placeholder='0–5';
+      inpS.addEventListener('input',function(){
+        var v=parseFloat(this.value);
+        if(v>5){v=5;this.value=5;} if(v<0&&this.value!==''){v=0;this.value=0;}
+        criteria[ci].scores[oi]=isNaN(v)?'':v; buildFoot(); buildInsight();
+      });
+      tdS.appendChild(inpS); tr.appendChild(tdS);
+    });
+    // remove
+    var tdA=document.createElement('td'); tdA.className='ac';
+    if(criteria.length>1){
+      var btn=document.createElement('button'); btn.innerHTML='&#10005;';
+      btn.addEventListener('click',function(){ removeCriterion(ci); }); tdA.appendChild(btn);
+    }
+    tr.appendChild(tdA); tbody.appendChild(tr);
+  });
+  // add criterion row
+  var addRow=document.createElement('tr'); addRow.className='add-crit-row';
+  var addTd=document.createElement('td'); addTd.colSpan=3+options.length+1;
+  var inner=document.createElement('div'); inner.className='add-crit-inner';
+  var addBtn=document.createElement('button'); addBtn.textContent='+ Add criterion';
+  addBtn.addEventListener('click',addCriterion);
+  inner.appendChild(addBtn); addTd.appendChild(inner); addRow.appendChild(addTd); tbody.appendChild(addRow);
+}
+
+function refreshWeightCells() {
+  var weights=getWeights();
+  criteria.forEach(function(_,ci){
+    var cell=document.getElementById('wc-'+ci);
+    if(cell) cell.textContent=weights[ci]>0?(weights[ci]*100).toFixed(1)+'%':'—';
+  });
+}
+
+function buildFoot() {
+  var tfoot=document.getElementById('tfoot');
+  var totals=calcTotals(); var maxT=Math.max.apply(null,totals); var imp=totalImp();
+  var html='<tr><td class="lc">Total score</td>';
+  html+='<td class="ic" style="text-align:center;font-size:11px;color:#aaa">'+(imp>0?'Σ'+imp:'—')+'</td>';
+  html+='<td class="wc">100%</td>';
+  totals.forEach(function(t){ var isW=t>0&&t===maxT; html+='<td class="'+(isW?'winner':'')+'">'+( t>0?t.toFixed(2)+(isW?' ✓':''):'—')+'</td>'; });
+  html+='<td class="ac"></td></tr>';
+  tfoot.innerHTML=html;
+}
+
+function buildInsight() {
+  var el=document.getElementById('insight');
+  var totals=calcTotals(); var maxT=Math.max.apply(null,totals);
+  if(maxT<=0){el.style.display='none';return;}
+  var wi=totals.indexOf(maxT);
+  var others=totals.filter(function(_,i){return i!==wi;});
+  var runner=others.length?Math.max.apply(null,others):0;
+  el.style.display='block';
+  el.innerHTML='&#128161; <strong>'+esc(options[wi]||'Option '+(wi+1))+'</strong> leads with <strong>'+maxT.toFixed(2)+'</strong> — ahead by '+(maxT-runner).toFixed(2)+' points.';
+}
+
+function addOption() {
+  options.push('Option '+(options.length+1));
+  criteria.forEach(function(c){c.scores.push('');});
+  buildAll();
+  var pills=document.querySelectorAll('.opt-pill input');
+  if(pills.length) pills[pills.length-1].focus();
+}
+function removeOption(i) {
+  if(options.length<=1)return; options.splice(i,1);
+  criteria.forEach(function(c){c.scores.splice(i,1);}); buildAll();
+}
+function addCriterion() {
+  criteria.push({name:'',importance:'',scores:options.map(function(){return '';})});
+  buildAll();
+  var rows=document.querySelectorAll('#tbody tr:not(.add-crit-row)');
+  if(rows.length){var inp=rows[rows.length-1].querySelector('input');if(inp)inp.focus();}
+}
+function removeCriterion(i) {
+  if(criteria.length<=1)return; criteria.splice(i,1); buildAll();
+}
+function resetAll() {
+  if(!confirm('Reset everything?'))return;
+  options=['Option A','Option B'];
+  criteria=[{name:'Criterion 1',importance:'',scores:['','']},{name:'Criterion 2',importance:'',scores:['','']}];
+  buildAll();
+}
+function exportCSV() {
+  var weights=getWeights();
+  var csv='Criterion,Importance (1-10),Weight (%),'+options.map(function(o){return esc(o||'Option');}).join(',')+'\n';
+  criteria.forEach(function(c,ci){ csv+='"'+(c.name||'')+'",'+( c.importance||'')+','+(weights[ci]*100).toFixed(1)+'%,'+options.map(function(_,oi){return c.scores[oi]||'';}).join(',')+'\n'; });
+  var totals=calcTotals(); var maxT=Math.max.apply(null,totals);
+  csv+='Total score,,,'+totals.map(function(t){return t>0?t.toFixed(2):'—';}).join(',')+'\n';
+  var wi=totals.indexOf(maxT);
+  if(maxT>0) csv+='Winner: '+(options[wi]||'Option '+(wi+1))+'\n';
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='decision-matrix.csv'; a.click();
+}
+function esc(v){ return String(v===undefined||v===null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+buildAll();
+</script>
+</body>
+</html>
